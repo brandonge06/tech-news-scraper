@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 680px; margin: 0 auto; background: #f9f9f9; color: #1a1a1a; }
+  .container { background: #fff; border-radius: 8px; overflow: hidden; margin: 20px auto; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .header { background: #0f0f0f; color: #fff; padding: 28px 32px; }
+  .header h1 { margin: 0; font-size: 22px; letter-spacing: -0.3px; }
+  .header .date { color: #888; font-size: 13px; margin-top: 4px; }
+  .section { padding: 24px 32px; border-bottom: 1px solid #f0f0f0; }
+  .section:last-child { border-bottom: none; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #888; margin-bottom: 12px; }
+  .section-label.ai { color: #6366f1; }
+  .section-label.stocks { color: #16a34a; }
+  .section-label.internships { color: #d97706; }
+  .content { font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .footer { padding: 20px 32px; font-size: 12px; color: #aaa; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>TechPulse</h1>
+    <div class="date">{{ date }}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">📰 Tech Digest</div>
+    <div class="content">{{ tech_summary }}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label ai">🤖 AI & ML Spotlight</div>
+    <div class="content">{{ ai_summary }}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label stocks">📈 Market Movers</div>
+    <div class="content">{{ stock_summary }}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label internships">💼 New Internship Listings</div>
+    <div class="content">{{ internship_listings }}</div>
+  </div>
+
+  <div class="footer">TechPulse · Unsubscribe by deleting the cron job 😄</div>
+</div>
+</body>
+</html>
