@@ -53,8 +53,8 @@ def summarize_stocks(movers: list[dict]) -> str:
 def format_internships(listings: list[dict]) -> str:
     if not listings:
         return "No new internship listings in the last 24 hours."
-    return "\n".join(
-        f"• <b>{l['company']}</b> — {l['role']} ({l['location']}) "
-        f"{'<a href=\"' + l['apply_url'] + '\">Apply</a>' if l['apply_url'] else ''}"
-        for l in listings
-    )
+    lines = []
+    for l in listings:
+        apply_link = '<a href="' + l['apply_url'] + '">Apply</a>' if l['apply_url'] else ''
+        lines.append(f"• <b>{l['company']}</b> — {l['role']} ({l['location']}) {apply_link}")
+    return "\n".join(lines)
