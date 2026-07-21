@@ -4,8 +4,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-GMAIL_ADDRESS = os.getenv("GMAIL_ADDRESS")
-GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+# Resend's shared sending domain works out of the box, but only delivers to the
+# email address you signed up with. Verify your own domain to send anywhere.
+FROM_EMAIL = os.getenv("FROM_EMAIL", "TechPulse <onboarding@resend.dev>")
 RECIPIENT_EMAIL = os.getenv("RECIPIENT_EMAIL")
 STOCK_TICKERS = os.getenv("STOCK_TICKERS", "AAPL,MSFT,NVDA,GOOGL,META,TSLA").split(",")
 

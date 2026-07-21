@@ -1,8 +1,8 @@
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import resend
 from jinja2 import Environment, FileSystemLoader
-from config import GMAIL_ADDRESS, GMAIL_APP_PASSWORD, RECIPIENT_EMAIL
+from config import RESEND_API_KEY, FROM_EMAIL, RECIPIENT_EMAIL
+
+resend.api_key = RESEND_API_KEY
 
 
 def send_digest(date: str, tech_summary: str, ai_summary: str, stock_summary: str, internship_listings: str):
@@ -16,14 +16,11 @@ def send_digest(date: str, tech_summary: str, ai_summary: str, stock_summary: st
         internship_listings=internship_listings,
     )
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"TechPulse — {date}"
-    msg["From"] = GMAIL_ADDRESS
-    msg["To"] = RECIPIENT_EMAIL
-    msg.attach(MIMEText(html, "html"))
+    response = resend.Emails.send({
+        "from": FROM_EMAIL,
+        "to": RECIPIENT_EMAIL,
+        "subject": f"TechPulse — {date}",
+        "html": html,
+    })
 
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
-        server.sendmail(GMAIL_ADDRESS, RECIPIENT_EMAIL, msg.as_string())
-
-    print(f"[emailer] digest sent to {RECIPIENT_EMAIL}")
+    print(f"[emailer] digest sent to {RECIPIENT_EMAIL} (id: {response.get('id')})")
