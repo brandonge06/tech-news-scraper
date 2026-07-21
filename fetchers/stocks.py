@@ -6,20 +6,37 @@ from config import STOCK_TICKERS
 SCREENER_COUNT = 15
 # Final number of stocks to include in the digest.
 TOP_N = 8
+# Minimum market cap to filter out penny-stock noise ($2B).
+MIN_MARKET_CAP = 2_000_000_000
+
+
+def _tech_query():
+    """US technology-sector stocks above the market-cap floor."""
+    return yf.EquityQuery("and", [
+        yf.EquityQuery("eq", ["region", "us"]),
+        yf.EquityQuery("eq", ["sector", "Technology"]),
+        yf.EquityQuery("gt", ["intradaymarketcap", MIN_MARKET_CAP]),
+    ])
 
 
 def _dynamic_symbols() -> list[str]:
-    """Pull today's trending symbols live from Yahoo's screeners."""
+    """Pull today's trending tech symbols live from Yahoo, biggest gainers and losers."""
     symbols = []
-    for screener in ("most_actives", "day_gainers", "day_losers"):
+    # Top tech gainers (descending) and losers (ascending) by % change.
+    for ascending in (False, True):
         try:
-            result = yf.screen(screener, count=SCREENER_COUNT)
+            result = yf.screen(
+                _tech_query(),
+                sortField="percentchange",
+                sortAsc=ascending,
+                count=SCREENER_COUNT,
+            )
             for q in result.get("quotes", []):
                 sym = q.get("symbol")
                 if sym:
                     symbols.append(sym)
         except Exception as e:
-            print(f"[stocks] screener '{screener}' failed: {e}")
+            print(f"[stocks] tech screener (ascending={ascending}) failed: {e}")
     return symbols
 
 
