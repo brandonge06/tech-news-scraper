@@ -1,53 +1,46 @@
+import time
 import requests
-import re
-from datetime import datetime, timedelta
 from config import INTERNSHIP_REPO
+
+LISTINGS_URL = (
+    f"https://raw.githubusercontent.com/{INTERNSHIP_REPO}/dev/.github/scripts/listings.json"
+)
 
 
 def fetch_new_listings(days_back: int = 1) -> list[dict]:
-    """Pull internship listings added in the last `days_back` days from the SimplifyJobs README."""
-    url = f"https://api.github.com/repos/{INTERNSHIP_REPO}/contents/README.md"
-    headers = {"Accept": "application/vnd.github.v3.raw"}
-
+    """Pull internship listings posted in the last `days_back` days from SimplifyJobs' listings.json."""
     try:
-        resp = requests.get(url, headers=headers, timeout=10)
+        resp = requests.get(LISTINGS_URL, timeout=15)
         resp.raise_for_status()
-        content = resp.text
+        data = resp.json()
     except Exception as e:
-        print(f"[internships] failed to fetch README: {e}")
+        print(f"[internships] failed to fetch listings: {e}")
         return []
 
+    cutoff = time.time() - days_back * 86400
     listings = []
-    # Table rows look like: | Company | Role | Location | ... | Date |
-    row_pattern = re.compile(r"^\|(.+)\|$", re.MULTILINE)
-    cutoff = datetime.now() - timedelta(days=days_back)
+    seen = set()
 
-    for match in row_pattern.finditer(content):
-        cells = [c.strip() for c in match.group(1).split("|")]
-        if len(cells) < 5:
+    for job in data:
+        if not (job.get("active") and job.get("is_visible")):
             continue
-        # Skip header and separator rows
-        if "---" in cells[0] or cells[0].lower() in ("company", ""):
+        if job.get("date_posted", 0) < cutoff:
             continue
 
-        company, role, location, apply, date_str = cells[0], cells[1], cells[2], cells[3], cells[-1]
+        # De-dupe repeated postings (same company + title).
+        key = (job.get("company_name", "").strip(), job.get("title", "").strip())
+        if key in seen:
+            continue
+        seen.add(key)
 
-        # Try to parse date (format varies: "Jun 20" or "2025-06-20")
-        for fmt in ("%b %d", "%Y-%m-%d"):
-            try:
-                parsed = datetime.strptime(date_str.strip(), fmt)
-                if fmt == "%b %d":
-                    parsed = parsed.replace(year=datetime.now().year)
-                if parsed >= cutoff:
-                    listings.append({
-                        "company": company,
-                        "role": role,
-                        "location": location,
-                        "apply_url": re.search(r'\(([^)]+)\)', apply).group(1) if re.search(r'\(([^)]+)\)', apply) else "",
-                        "date": date_str.strip(),
-                    })
-                break
-            except ValueError:
-                continue
+        locations = job.get("locations") or []
+        listings.append({
+            "company": job.get("company_name", "").strip(),
+            "role": job.get("title", "").strip(),
+            "location": ", ".join(locations) if locations else "N/A",
+            "apply_url": job.get("url", ""),
+            "date": time.strftime("%b %d", time.gmtime(job.get("date_posted", 0))),
+        })
 
-    return listings[:20]
+    listings.sort(key=lambda x: x["company"].lower())
+    return listings[:25]
