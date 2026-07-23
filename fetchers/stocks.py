@@ -52,7 +52,15 @@ def _fetch_one(ticker: str) -> Optional[dict]:
         pct_change = ((curr_close - prev_close) / prev_close) * 100
 
         news = t.news[:2] if t.news else []
-        headlines = [n.get("content", {}).get("title", "") for n in news if n.get("content")]
+        headlines = []
+        for n in news:
+            content = n.get("content")
+            if not content:
+                continue
+            headlines.append({
+                "title": content.get("title", ""),
+                "url": (content.get("canonicalUrl") or {}).get("url", ""),
+            })
 
         return {
             "ticker": ticker,

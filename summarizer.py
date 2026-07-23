@@ -40,7 +40,7 @@ def summarize_stocks(movers: list[dict]) -> str:
         return "No stock data fetched today."
     blob = "\n".join(
         f"- {m['ticker']}: {'+' if m['change_pct'] >= 0 else ''}{m['change_pct']}% (${m['price']}). "
-        f"News: {'; '.join(m['headlines']) or 'none'}"
+        f"News: {'; '.join(h['title'] for h in m['headlines']) or 'none'}"
         for m in movers
     )
     return _call(
@@ -57,4 +57,41 @@ def format_internships(listings: list[dict]) -> str:
     for l in listings:
         apply_link = '<a href="' + l['apply_url'] + '">Apply</a>' if l['apply_url'] else ''
         lines.append(f"• <b>{l['company']}</b> — {l['role']} ({l['location']}) {apply_link}")
+    return "\n".join(lines)
+
+
+def format_sources(articles: list[dict]) -> str:
+    """Build a deduped list of linked article titles to append under a summary."""
+    if not articles:
+        return ""
+    seen = set()
+    lines = []
+    for a in articles:
+        title = a.get("title", "").strip()
+        url = a.get("url", "")
+        if not title or not url or title in seen:
+            continue
+        seen.add(title)
+        lines.append(f'• <a href="{url}">{title}</a> <span style="color:#aaa">— {a["source"]}</span>')
+    return "\n".join(lines)
+
+
+def format_stock_links(movers: list[dict]) -> str:
+    """Build linked tickers (to Yahoo Finance) with their linked headlines."""
+    if not movers:
+        return ""
+    lines = []
+    for m in movers:
+        sign = "+" if m["change_pct"] >= 0 else ""
+        color = "#16a34a" if m["change_pct"] >= 0 else "#dc2626"
+        ticker_link = f'<a href="https://finance.yahoo.com/quote/{m["ticker"]}">{m["ticker"]}</a>'
+        head = ""
+        if m["headlines"]:
+            h = m["headlines"][0]
+            head = f' — <a href="{h["url"]}">{h["title"]}</a>' if h["url"] else f' — {h["title"]}'
+        lines.append(
+            f'<b>{ticker_link}</b> '
+            f'<span style="color:{color}">{sign}{m["change_pct"]}%</span> '
+            f'(${m["price"]}){head}'
+        )
     return "\n".join(lines)
