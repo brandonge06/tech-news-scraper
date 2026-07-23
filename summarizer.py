@@ -60,19 +60,33 @@ def format_internships(listings: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def format_sources(articles: list[dict]) -> str:
-    """Build a deduped list of linked article titles to append under a summary."""
+def format_sources(articles: list[dict], limit: int = 8) -> str:
+    """Build a deduped, capped list of linked article titles to append under a summary."""
     if not articles:
         return ""
-    seen = set()
-    lines = []
+    # Round-robin across sources so no single outlet dominates the list.
+    by_source = {}
     for a in articles:
         title = a.get("title", "").strip()
         url = a.get("url", "")
-        if not title or not url or title in seen:
+        if not title or not url:
             continue
-        seen.add(title)
-        lines.append(f'• <a href="{url}">{title}</a> <span style="color:#aaa">— {a["source"]}</span>')
+        by_source.setdefault(a["source"], []).append(a)
+
+    seen = set()
+    lines = []
+    while len(lines) < limit and any(by_source.values()):
+        for source, queue in by_source.items():
+            if not queue:
+                continue
+            a = queue.pop(0)
+            title = a["title"].strip()
+            if title in seen:
+                continue
+            seen.add(title)
+            lines.append(f'• <a href="{a["url"]}">{title}</a> <span style="color:#aaa">— {source}</span>')
+            if len(lines) >= limit:
+                break
     return "\n".join(lines)
 
 
