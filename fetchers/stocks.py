@@ -1,6 +1,7 @@
 from typing import Optional
 import yfinance as yf
 from config import STOCK_TICKERS
+from fetchers.sp500 import fetch_sp500_tickers
 
 # How many dynamic movers to pull from each screener before deduping.
 SCREENER_COUNT = 15
@@ -77,6 +78,13 @@ def fetch_movers() -> list[dict]:
     # Watchlist tickers are always included; trending symbols are pulled live.
     watchlist = [t.strip().upper() for t in STOCK_TICKERS if t.strip()]
     trending = _dynamic_symbols()
+
+    # Restrict to S&P 500 constituents. If the constituent list fails to load,
+    # skip filtering rather than dropping every ticker.
+    sp500 = fetch_sp500_tickers()
+    if sp500:
+        watchlist = [t for t in watchlist if t in sp500]
+        trending = [t for t in trending if t in sp500]
 
     # Dedupe while preserving order, watchlist first.
     seen = set()

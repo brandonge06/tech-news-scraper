@@ -85,6 +85,8 @@ Used specifically for the GitHub internship list and any non-RSS sources.
 - Not suitable for production trading systems; fine for a personal digest
 - Rate limits exist but are generous for personal use
 
+Both the watchlist (`STOCK_TICKERS`) and the live trending screener are filtered down to current S&P 500 constituents (`fetchers/sp500.py`, pulled from [datasets/s-and-p-500-companies](https://github.com/datasets/s-and-p-500-companies)) so the digest never surfaces small/micro-cap tickers outside the index.
+
 **Alternatives considered:**
 - **Alpha Vantage** — free tier is limited to 25 requests/day, which is too tight when fetching data on multiple tickers plus news
 - **Polygon.io** — excellent API, but paid. No free tier for real-time data.
@@ -212,7 +214,7 @@ GMAIL_ADDRESS=you@gmail.com
 GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx   # Generate at myaccount.google.com/apppasswords
 RECIPIENT_EMAIL=you@gmail.com
 
-# Optional: stock tickers to track (comma-separated)
+# Optional: stock tickers to track (comma-separated, must be S&P 500 members)
 STOCK_TICKERS=AAPL,MSFT,NVDA,GOOGL,META,TSLA
 ```
 
