@@ -28,4 +28,7 @@ RSS_FEEDS = {
     ],
 }
 
-INTERNSHIP_REPO = "SimplifyJobs/Summer2026-Internships"
+INTERNSHIP_REPOS = [
+    "SimplifyJobs/Summer2026-Internships",
+    "SimplifyJobs/Summer2027-Internships",
+]

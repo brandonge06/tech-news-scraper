@@ -9,7 +9,7 @@ A scheduled Python pipeline that scrapes tech news, internship listings, and tre
 Each morning, TechPulse:
 
 1. Pulls articles from curated RSS feeds across general tech and AI sources
-2. Scrapes the [SimplifyJobs internship board](https://github.com/SimplifyJobs/Summer2026-Internships) for new listings
+2. Scrapes the SimplifyJobs internship boards ([Summer 2026](https://github.com/SimplifyJobs/Summer2026-Internships), [Summer 2027](https://github.com/SimplifyJobs/Summer2027-Internships)) for new listings, merging and de-duping across both
 3. Fetches top tech stock movers and their news headlines
 4. Sends everything through Claude to produce tight, readable summaries
 5. Composes and delivers a formatted HTML email to your inbox
@@ -53,7 +53,7 @@ The email is structured in three sections: a general tech digest, a deeper AI-fo
 
 Used specifically for the GitHub internship list and any non-RSS sources.
 
-**Why:** The internship board (`SimplifyJobs/Summer2026-Internships`) is a GitHub README — it's plain HTML, server-rendered, and publicly accessible. `requests` + `bs4` is the right tool: simple, lightweight, no browser required.
+**Why:** The internship boards (`SimplifyJobs/Summer2026-Internships`, `SimplifyJobs/Summer2027-Internships`) are GitHub READMEs — plain HTML, server-rendered, and publicly accessible. `requests` + `bs4` is the right tool: simple, lightweight, no browser required.
 
 **Pros:**
 - Minimal overhead — no browser process, no JavaScript engine
