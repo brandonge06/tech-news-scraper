@@ -56,4 +56,4 @@ def fetch_new_listings(days_back: int = 1) -> list[dict]:
             })
 
     listings.sort(key=lambda x: x["company"].lower())
-    return listings[:25]
+    return listings
